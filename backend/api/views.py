@@ -7,10 +7,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticated
 
 
 from .models import Pin, Invoice, Vessel
-from .serializers import InvoiceUploadSerializer
+from .serializers import InvoiceUploadSerializer, InvoiceListSerializer
 from .authentication import JWTAuthentication 
 
 
@@ -140,3 +141,19 @@ class VesselListView(APIView):
             for v in vessels
         ]
         return Response(data, status=status.HTTP_200_OK)
+
+# -------------------------------
+#    Supplier Invoice List      -
+# -------------------------------
+
+class SupplierInvoiceListView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        supplier = request.user
+        invoices = Invoice.objects.filter(supplier=supplier).order_by('-date_created')
+
+        serializer = InvoiceListSerializer(invoices, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

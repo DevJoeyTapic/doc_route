@@ -13,6 +13,10 @@ class Supplier(models.Model):
     )
     supplier_name = models.CharField(max_length=150)
     date_created = models.DateTimeField(auto_now_add=True)
+    
+    @property
+    def is_authenticated(self):
+        return True
 
     class Meta:
         ordering = ['-date_created']
